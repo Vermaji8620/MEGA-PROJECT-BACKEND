@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 // sendotp
-// yaha pe otp generation hoga
+// yaha pe otp generation hoga for new email
 exports.sendOTP = async (req, res) => {
   try {
     // fetch then email from request ki body
@@ -59,7 +59,6 @@ exports.sendOTP = async (req, res) => {
 };
 
 // signup
-
 exports.signUp = async () => {
   try {
     // data fetching for signingup
@@ -105,7 +104,9 @@ exports.signUp = async () => {
       .sort({ createdAt: -1 })
       .limit(1);
     console.log(recentOtp);
+
     // validate otp
+    // recentotp agar hai hi nai--
     if (recentOtp.length === 0) {
       return res.status(400).json({
         success: false,
@@ -220,7 +221,8 @@ exports.login = async (req, res) => {
 // changePassword(to be completed)
 exports.changePassword = async () => {
   // get data from req.body
-  // get old pass, confirm newpass,
+  // get old pass, new password
+  // confirm newpass,
   // validation
   // update pass in DB
   // send mail--paswrod updated
