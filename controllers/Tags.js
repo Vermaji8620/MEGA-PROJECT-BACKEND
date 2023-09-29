@@ -36,7 +36,10 @@ exports.createTag = async (req, res) => {
 // get all the tags
 exports.showAllTags = async (req, res) => {
   try {
-    const allTags = await Tag.find({}, { name, description: description });
+    const allTags = await Tag.find(
+      {},
+      { name: name, description: description }
+    );
     res.status(200).json({
       success: true,
       message: "all tags returned successfully",

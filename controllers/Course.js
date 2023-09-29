@@ -6,6 +6,7 @@ const { uploadImageToCloudinary } = require("../utils/imageUploader");
 require("dotenv").config();
 
 // creating course handler
+// little doubt in this one and also some things need to be changed
 exports.createCourse = async (req, res) => {
   try {
     // fetch the data
