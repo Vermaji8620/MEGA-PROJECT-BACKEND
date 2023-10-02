@@ -1,9 +1,11 @@
+const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const OTP = require("../models/OTP");
-const bcrypt = require("bcrypt");
-const otpGenerator = require("otp-generator");
-const Profile = require("../models/Profile");
 const jwt = require("jsonwebtoken");
+const otpGenerator = require("otp-generator");
+const mailSender = require("../utils/mailSender");
+const { passwordUpdated } = require("../mail/templates/passwordUpdate");
+const Profile = require("../models/Profile");
 require("dotenv").config();
 
 // sendotp
@@ -41,13 +43,14 @@ exports.sendOTP = async (req, res) => {
 
     const otpPayload = { email, otp };
     // create an entry in database
-    const otpBody = OTP.create(otpPayload);
+    const otpBody = await OTP.create(otpPayload);
     console.log(otpBody);
 
     // send the res
     res.status(200).json({
       success: true,
       message: "OTP sent successfully",
+      otp,
     });
   } catch (error) {
     consolr.log(error);
@@ -100,19 +103,17 @@ exports.signUp = async () => {
     const existingUser = await User.findOne({ email });
 
     // find most recent otp
-    const recentOtp = await OTP.find({ email })
-      .sort({ createdAt: -1 })
-      .limit(1);
-    console.log(recentOtp);
+    const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+    console.log(response);
 
     // validate otp
-    // recentotp agar hai hi nai--
-    if (recentOtp.length === 0) {
+    // response agar hai hi nai--
+    if (response.length === 0) {
       return res.status(400).json({
         success: false,
         message: "otp not found",
       });
-    } else if (otp !== recentOtp.otp) {
+    } else if (otp !== response[0].otp) {
       // invalid otp
       return res.status(400).json({
         success: false,
@@ -135,8 +136,9 @@ exports.signUp = async () => {
       lastName,
       email,
       contactNumber,
-      hashedPassword,
-      accountType,
+      password: hashedPassword,
+      accountType: accountType,
+      approved: approved,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
@@ -219,12 +221,66 @@ exports.login = async (req, res) => {
 };
 
 // changePassword(to be completed)
-exports.changePassword = async () => {
-  // get data from req.body
-  // get old pass, new password
-  // confirm newpass,
-  // validation
-  // update pass in DB
-  // send mail--paswrod updated
-  // return response
+exports.changePassword = async (req, res) => {
+  try {
+    // get data from req.body
+    // get old pass, new password
+    const { password, newPassword, confirmNewPassword } = req.body;
+    // validation
+    if (!password) {
+      return res.status(401).json({
+        success: false,
+        message: "incorrect current password",
+      });
+    }
+    // confirm newpass,
+    if (newPassword != confirmNewPassword) {
+      return res.status(401).json({
+        success: false,
+        message: "New passwords dont match",
+      });
+    }
+    // hash the password--
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+    // update pass in DB
+    const updatedUserDetails = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        password: encryptedPassword,
+      },
+      {
+        new: true,
+      }
+    );
+    // send mail--paswrod updated
+    try {
+      const emailResponse = await mailSender(
+        updatedUserDetails.email,
+        passwordUpdated(
+          updatedUserDetails.email,
+          `password updated successfully`
+        )
+      );
+      console.log("email sent successfully", emailResponse.response);
+    } catch (error) {
+      console.log("error sending the mail", error);
+      return res.status(500).json({
+        success: false,
+        message: "error while sending the email",
+        error: error.message,
+      });
+    }
+
+    // return response
+    return res.status(200).json({
+      success: true,
+      message: "password changed successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

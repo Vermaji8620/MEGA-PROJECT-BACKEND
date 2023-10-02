@@ -1,5 +1,5 @@
 const Course = require("../models/Course");
-const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 const User = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 
@@ -9,10 +9,19 @@ require("dotenv").config();
 // little doubt in this one and also some things need to be changed
 exports.createCourse = async (req, res) => {
   try {
+    const userId = req.user.id;
     // fetch the data
     // get the data
-    const { courseName, courseDescription, whatYouWillLearn, price, tag } =
-      req.body;
+    const {
+      courseName,
+      courseDescription,
+      whatYouWillLearn,
+      price,
+      tag,
+      category,
+      status,
+      instructions,
+    } = req.body;
 
     // get the thumbnail
     const thumbnail = req.files.thumbnailImage;
@@ -24,17 +33,22 @@ exports.createCourse = async (req, res) => {
       !whatYouWillLearn ||
       !price ||
       !tag ||
-      !thumbnail
+      !thumbnail ||
+      !category
     ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
       });
     }
+    if (!status || status === undefined) {
+      status = "Draft";
+    }
 
     // dB call maar rhe taki 'instructor' k andar me daal sake
-    const userId = req.user.id;
-    const instructorDetails = await User.findById(userId);
+    const instructorDetails = await User.findById(userId, {
+      accountType: "Instructor",
+    });
     console.log("instructorDetails", instructorDetails);
     // verify if userId and instructorDetails._id are same or different
 
@@ -46,11 +60,11 @@ exports.createCourse = async (req, res) => {
     }
 
     // chck the given tag is valid or not
-    const tagDetails = await Tag.findById(tag);
-    if (!tagDetails) {
+    const categoryDetails = await Category.findById(tag);
+    if (!categoryDetails) {
       return res.status(404).json({
         success: false,
-        message: "Tag details not found",
+        message: "category details not found",
       });
     }
 
@@ -59,16 +73,20 @@ exports.createCourse = async (req, res) => {
       thumbnail,
       process.env.FOLDER_NAME
     );
+    console.log(thumbNailImage);
 
     // entry in dB for new course
     const newCourse = await Course.create({
       courseName,
       courseDescription,
       instructor: instructorDetails._id,
-      whatYouWillLearn,
+      whatYouWillLearn: whatYouWillLearn,
       price,
-      tag: tagDetails._id,
+      tag: tag,
+      category: categoryDetails._id,
       thumbnail: thumbNailImage.secure_url,
+      status: status,
+      instructions: instructions,
     });
 
     // create a new course entry to the user schema of instructor
@@ -82,7 +100,16 @@ exports.createCourse = async (req, res) => {
       { new: true }
     );
 
-    // update the tag schema
+    // update the course
+    await Category.findByIdAndUpdate(
+      { _id: category },
+      {
+        $push: {
+          course: newCourse._id,
+        },
+      },
+      { new: true }
+    );
 
     // res.
     return res.status(200).json({
@@ -100,10 +127,22 @@ exports.createCourse = async (req, res) => {
 };
 
 // get all the courses handler
-exports.showAllCourses = async (req, res) => {
+exports.getAllCourses = async (req, res) => {
   try {
     // change the below statement incrementally
-    const allCourses = await Course.find({});
+    const allCourses = await Course.find(
+      {},
+      {
+        courseName: true,
+        price: true,
+        thumbnail: true,
+        instructor: true,
+        ratingAndReviews: true,
+        studentsEnrolled: true,
+      }
+    )
+      .populate("Instructor")
+      .exec();
     return res.status(200).json({
       success: true,
       message: "Data for all the courses fetched successfully",

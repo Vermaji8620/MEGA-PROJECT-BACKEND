@@ -1,5 +1,6 @@
 const Profile = require("../models/Profile");
 const User = require("../models/User");
+const { uploadImageToCloudinary } = require("../utils/imageUploader");
 
 // updateProfile
 exports.updateProfile = async (req, res) => {
@@ -51,9 +52,9 @@ exports.deleteProfile = async (req, res) => {
     const id = req.user.id;
 
     // validation
-    const userDetails = await User.findById(id);
+    const userDetails = await User.findById({ _id: id });
     if (!userDetails) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "user is not found to delete",
       });
@@ -91,6 +92,7 @@ exports.getAllUserDetails = async (req, res) => {
       .populate("additionalDetails")
       .exec();
 
+    console.log(userDetails);
     // return res
     return res.status(200).json({
       success: true,

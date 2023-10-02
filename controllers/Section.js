@@ -27,7 +27,14 @@ exports.createSection = async (req, res) => {
         },
       },
       { new: true }
-    );
+    )
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec();
 
     // how to use populate in such a way to populate section and subsection both in theh updated course details
 
@@ -59,7 +66,7 @@ exports.updateSection = async (req, res) => {
     }
 
     // update the data
-    const section = await Course.findByIdAndUpdate(
+    const section = await Section.findByIdAndUpdate(
       sectionId,
       {
         sectionName,

@@ -18,14 +18,14 @@ exports.resetPasswordToken = async (req, res) => {
     }
 
     //   generate token
-    const token = crypto.randomUUID();
+    const token = crypto.randomBytes(20).toString("hex");
 
     //   update the user by adding the token and the expiraiton time
     const updatedDetails = await User.findOneAndUpdate(
       { email: email },
       {
         token: token,
-        resetPasswordExpires: Date.now() + 5 * 60 * 1000,
+        resetPasswordExpires: Date.now() + 3600000,
       },
       {
         new: true, // isse updated document return hota hai

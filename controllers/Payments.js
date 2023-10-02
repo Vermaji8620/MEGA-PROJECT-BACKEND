@@ -2,7 +2,10 @@ const { instance } = require("../config/razorpay");
 const User = require("../models/User");
 const Course = require("../models/Course");
 const mailSender = require("../utils/mailSender");
-const { mongoose } = require("mongoose");
+const {
+  courseEnrollmentEmail,
+} = require("../mail/templates/courseEnrollmentEmail");
+const { default: mongoose } = require("mongoose");
 
 // capture the payment and initiate the razorpay order
 exports.capturePayment = async (req, res) => {
@@ -30,7 +33,7 @@ exports.capturePayment = async (req, res) => {
     }
 
     // user has already paid for this course
-    // yaha pe convert krrhe hai chck krne k liye.....course k andar me jo studentsenrolled ka id wo object id k form me given hai..but yaha pe jb nikal rahe hai to hmko string type me mil raha hai..to type conversion to objectId krna jaruri hai
+    // yaha pe convert krrhe hai chck krne k liye.....course k andar me jo studentsenrolled  ka id wo object id k form me given hai..but yaha pe jb nikal rahe hai to hmko string type me mil raha hai..to type conversion to objectId krna jaruri hai
     const uid = new mongoose.Types.ObjectId(userId);
     if (course.studentsEnrolled.includes(uid)) {
       return res.status(400).json({
@@ -149,6 +152,7 @@ exports.verifySignature = async (req, res) => {
         message: "Signature verified and course added",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: error.message,
