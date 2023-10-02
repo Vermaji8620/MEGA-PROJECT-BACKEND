@@ -80,23 +80,26 @@ exports.categoryPageDetails = async (req, res) => {
     // get the courses for the other categories
     const categoriesExceptSelected = await Category.find({
       _id: { $ne: categoryId },
-    }).populate("courses");
-    let differentCourses = [];
-    for (const category of categoriesExceptSelected) {
-      differentCourses.push(...category.courses);
-    }
+    })
+      .populate("courses")
+      .exec();
+    // let differentCourses = [];
+    // for (const category of categoriesExceptSelected) {
+    //   differentCourses.push(...category.courses);
+    // }
 
-    // get all the top-selling courses all the categories
-    const allCategories = await Category.find().populate("courses");
-    const allCourses = allCategories.flatMap((category) => category.courses);
-    const mostSellingCourses = allCourses
-      .sort((a, b) => b.sold - a.sold)
-      .slice(0, 10);
+    // // get all the top-selling courses all the categories
+    // const allCategories = await Category.find().populate("courses");
+    // const allCourses = allCategories.flatMap((category) => category.courses);
+    // const mostSellingCourses = allCourses
+    //   .sort((a, b) => b.sold - a.sold)
+    //   .slice(0, 10);
 
     res.status(200).json({
+      success: true,
       selectedCourses: selectedCourses,
       differentCourses: differentCourses,
-      mostSellingCourses: mostSellingCourses,
+      // mostSellingCourses: mostSellingCourses,
     });
   } catch (error) {
     return res.status(500).json({

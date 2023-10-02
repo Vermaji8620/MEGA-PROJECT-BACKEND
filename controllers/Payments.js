@@ -89,11 +89,12 @@ exports.capturePayment = async (req, res) => {
 
 // verify the signature of raxorpay and the server
 exports.verifySignature = async (req, res) => {
-  // mera banaya hua secret key jo ki server pe hai
-  const webhookSecret = "12345678";
   // raxorapy se jo key aa raha hai
   const signature = req.headers["x-razorpay-signature"];
+  // mera banaya hua secret key jo ki server pe hai
+  const webhookSecret = "12345678";
   // hm isko hash krrhe hai..taki signature ka sath me match kr sake....kyunki signature jo aya hai..wo already hashed hai..to hmko apne webhookSecret ko to hash krna hga na..to uske liye do tarika ka hashing hota hai...pehla hota hai..sha256 hashing aur dusra Hmac hashing....dono me farq itna hai ki sha256 hashing technique khud hi sufficient hai hashing k liye...lekin hMac technique sha256 leta hai..aut sath me ek secret key leta hai...jiske sath hashinng krna hai
+  // Hmac--hash based message authentication code
   const shasum = crypto.createHmac("sha256", webhookSecret);
   // convert to string format
   shasum.update(JSON.stringify(req.body));
@@ -127,6 +128,7 @@ exports.verifySignature = async (req, res) => {
           message: "course is not found",
         });
       }
+
       console.log(enrolledCourse);
       const enrolledStudent = await User.findByIdAndUpdate(
         {
