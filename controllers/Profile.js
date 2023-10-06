@@ -40,6 +40,7 @@ exports.updateProfile = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
+      message: "this is not working",
       error: error.message,
     });
   }
@@ -97,6 +98,7 @@ exports.getAllUserDetails = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "user data is fetched successfully",
+      userDetails,
     });
   } catch (error) {
     console.log("user account details cannot be fetched");

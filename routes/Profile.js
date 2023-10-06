@@ -8,9 +8,8 @@ const {
   getAllUserDetails,
 } = require("../controllers/Profile");
 
-router.delete("/deleteProfile", deleteProfile);
-router.put("/updateProfile", auth, updateProfile);
-router.get("/getUserDetails", auth, getAllUserDetails);
-
+router.delete("/deleteProfile", auth, deleteProfile); //  tested
+router.put("/updateProfile", auth, updateProfile); // tested
+router.get("/getUserDetails", auth, getAllUserDetails); // tested
 
 module.exports = router;

@@ -22,11 +22,12 @@ exports.auth = async (req, res, next) => {
     try {
       const decode = jwt.verify(token, process.env.JWT_SECRET);
       console.log(decode);
-      req.user(decode);
+      req.user = decode;
     } catch (error) {
+      console.log("token cant be verified");
       return res.status(401).json({
         success: false,
-        message: "Token is invalid",
+        message: error.message,
       });
     }
     next();

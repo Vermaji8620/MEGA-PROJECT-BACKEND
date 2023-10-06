@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const mailSender = require("../utils/mailSender");
 
 // resetPasswordToken(reset krne k liye mail send krne ka kaam ye krrha)
@@ -43,9 +44,10 @@ exports.resetPasswordToken = async (req, res) => {
     );
 
     //    send the response
-    return res.json(200).json({
+    return res.status(200).json({
       success: true,
       message: " email sent successufully",
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -99,12 +101,12 @@ exports.resetPassword = async (req, res) => {
     );
 
     // return response
-    return res(200).json({
+    return res.status(200).json({
       success: true,
       message: "Password is reset successfully",
     });
   } catch (error) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: "Something went wrong while updating the password",
     });

@@ -46,6 +46,12 @@ exports.sendOTP = async (req, res) => {
     const otpBody = await OTP.create(otpPayload);
     console.log(otpBody);
 
+    try {
+      await mailSender(email, "this is otp", otp);
+    } catch (error) {
+      console.log(error.message);
+    }
+
     // send the res
     res.status(200).json({
       success: true,
@@ -62,7 +68,7 @@ exports.sendOTP = async (req, res) => {
 };
 
 // signup
-exports.signUp = async () => {
+exports.signUp = async (req, res) => {
   try {
     // data fetching for signingup
     const {
@@ -138,7 +144,8 @@ exports.signUp = async () => {
       contactNumber,
       password: hashedPassword,
       accountType: accountType,
-      approved: approved,
+      approved: true,
+      active: true,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
@@ -152,7 +159,7 @@ exports.signUp = async () => {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "user cant be registered. please try again",
+      message: "user can't be registered. please try again",
     });
   }
 };
@@ -226,6 +233,7 @@ exports.changePassword = async (req, res) => {
     // get data from req.body
     // get old pass, new password
     const { password, newPassword, confirmNewPassword } = req.body;
+    const id = req.user.id;
     // validation
     if (!password) {
       return res.status(401).json({
@@ -233,7 +241,7 @@ exports.changePassword = async (req, res) => {
         message: "incorrect current password",
       });
     }
-    // confirm newpass,
+    // confirm newpass
     if (newPassword != confirmNewPassword) {
       return res.status(401).json({
         success: false,
@@ -244,7 +252,7 @@ exports.changePassword = async (req, res) => {
     const encryptedPassword = await bcrypt.hash(newPassword, 10);
     // update pass in DB
     const updatedUserDetails = await User.findByIdAndUpdate(
-      req.user.id,
+      id,
       {
         password: encryptedPassword,
       },

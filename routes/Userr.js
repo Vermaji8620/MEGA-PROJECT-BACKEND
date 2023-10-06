@@ -41,11 +41,11 @@ const {
 
 const { auth } = require("../middlewares/auth");
 
-router.post("/login", login);
-router.post("/signup", signUp);
-router.post("/sendotp", sendOTP);
-router.post("/changepassword", changePassword);
-router.post("/reset-password", resetPassword);
-router.post("/reset-password-token", resetPasswordToken);
+router.post("/login", login); // tested
+router.post("/signup", signUp); // tested
+router.post("/sendotp", sendOTP); // tested
+router.post("/changepassword", auth, changePassword); //  tested
+router.post("/reset-password", resetPassword); //   tested
+router.post("/reset-password-token", resetPasswordToken); // tested
 
 module.exports = router;
