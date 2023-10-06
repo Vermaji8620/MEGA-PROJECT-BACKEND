@@ -46,7 +46,7 @@ exports.createCourse = async (req, res) => {
     }
 
     // dB call maar rhe taki 'instructor' k andar me daal sake
-    const instructorDetails = await User.findById(userId, {
+    let instructorDetails = await User.findById(userId, {
       accountType: "Instructor",
     });
     console.log("instructorDetails", instructorDetails);
@@ -60,7 +60,7 @@ exports.createCourse = async (req, res) => {
     }
 
     // chck the given tag is valid or not
-    const categoryDetails = await Category.findById(tag);
+    const categoryDetails = await Category.findById(category);
     if (!categoryDetails) {
       return res.status(404).json({
         success: false,

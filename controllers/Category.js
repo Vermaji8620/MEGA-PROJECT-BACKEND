@@ -35,17 +35,15 @@ exports.createCategory = async (req, res) => {
 // get all the tags
 exports.showAllCategories = async (req, res) => {
   try {
-    const allCategory = await Category.find(
-      {},
-      { name: true, description: description }
-    );
+    const allCategory = await Category.find();
     res.status(200).json({
       success: true,
       message: "all tags returned successfully",
       allCategory,
     });
   } catch (error) {
-    return res.json({
+    console.log(error);
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -57,8 +55,9 @@ exports.categoryPageDetails = async (req, res) => {
   try {
     const { categoryId } = req.body;
     // get the course for the specified category
+    const selectedCategory = "";
     try {
-      const selectedCategory = await Category.findById(categoryId)
+      selectedCategory = await Category.findById(categoryId)
         .populate("courses")
         .exec();
       console.log(selectedCategory);
@@ -98,7 +97,8 @@ exports.categoryPageDetails = async (req, res) => {
     res.status(200).json({
       success: true,
       selectedCourses: selectedCourses,
-      differentCourses: differentCourses,
+      categoriesExceptSelected: categoriesExceptSelected,
+      // differentCourses: differentCourses,
       // mostSellingCourses: mostSellingCourses,
     });
   } catch (error) {
