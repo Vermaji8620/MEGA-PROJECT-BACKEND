@@ -18,11 +18,11 @@ const {
 //   getCourseDetails,
 // } = require("../controllers/Course");
 // const { capturePayment, verifySignature } = require("../controllers/Payments");
-const {
-  updateProfile,
-  deleteProfile,
-  getAllUserDetails,
-} = require("../controllers/Profile");
+// const {
+//   updateProfile,
+//   deleteProfile,
+//   getAllUserDetails,
+// } = require("../controllers/Profile");
 // const {
 //   createRating,
 //   getAverageRating,

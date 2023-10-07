@@ -1,18 +1,17 @@
-const Course = require("../models/Course");
-const Category = require("../models/Category");
-const User = require("../models/User");
-const { uploadImageToCloudinary } = require("../utils/imageUploader");
-
+let Course = require("../models/Course");
+let Category = require("../models/Category");
+let User = require("../models/User");
+let { uploadImageToCloudinary } = require("../utils/imageUploader");
 require("dotenv").config();
 
 // creating course handler
 // little doubt in this one and also some things need to be changed
 exports.createCourse = async (req, res) => {
   try {
-    const userId = req.user.id;
+    let userId = req.user.id;
     // fetch the data
     // get the data
-    const {
+    let {
       courseName,
       courseDescription,
       whatYouWillLearn,
@@ -24,7 +23,7 @@ exports.createCourse = async (req, res) => {
     } = req.body;
 
     // get the thumbnail
-    const thumbnail = req.files.thumbnailImage;
+    let thumbnail = req.files.thumbnailImage;
 
     // validation
     if (
@@ -60,7 +59,7 @@ exports.createCourse = async (req, res) => {
     }
 
     // chck the given tag is valid or not
-    const categoryDetails = await Category.findById(category);
+    let categoryDetails = await Category.findById(category);
     if (!categoryDetails) {
       return res.status(404).json({
         success: false,
@@ -69,14 +68,14 @@ exports.createCourse = async (req, res) => {
     }
 
     // upload image to cloudinary
-    const thumbNailImage = await uploadImageToCloudinary(
+    let thumbNailImage = await uploadImageToCloudinary(
       thumbnail,
       process.env.FOLDER_NAME
     );
     console.log(thumbNailImage);
 
     // entry in dB for new course
-    const newCourse = await Course.create({
+    let newCourse = await Course.create({
       courseName,
       courseDescription,
       instructor: instructorDetails._id,
@@ -130,7 +129,7 @@ exports.createCourse = async (req, res) => {
 exports.getAllCourses = async (req, res) => {
   try {
     // change the below statement incrementally
-    const allCourses = await Course.find(
+    let allCourses = await Course.find(
       {},
       {
         courseName: true,
@@ -141,7 +140,7 @@ exports.getAllCourses = async (req, res) => {
         studentsEnrolled: true,
       }
     )
-      .populate("Instructor")
+      .populate({ path: "instructor" })
       .exec();
     return res.status(200).json({
       success: true,
@@ -161,20 +160,21 @@ exports.getAllCourses = async (req, res) => {
 // get course details
 exports.getCourseDetails = async (req, res) => {
   try {
-    const { courseId } = req.body;
+    let { courseId } = req.body;
     // find course details
-    const courseDetails = Course.find({ _id: courseId })
+    let courseDetails = await Course.find({ _id: courseId })
       .populate({
         path: "instructor",
         populate: { path: "additionalDetails" },
       })
       .populate("category")
-      .populate("ratingAndReviews")
+      .populate("ratingAndReview")
       .populate({
         path: "courseContent",
         populate: { path: "subSection" },
-      })
-      .exec();
+      });
+    // .exec();
+    console.log(courseDetails);
 
     // validation
     if (!courseDetails) {

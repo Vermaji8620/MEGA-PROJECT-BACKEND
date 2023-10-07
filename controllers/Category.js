@@ -55,10 +55,10 @@ exports.categoryPageDetails = async (req, res) => {
   try {
     const { categoryId } = req.body;
     // get the course for the specified category
-    const selectedCategory = "";
+    let selectedCategory;
     try {
       selectedCategory = await Category.findById(categoryId)
-        .populate("courses")
+        .populate({ path: "course" })
         .exec();
       console.log(selectedCategory);
     } catch (error) {
@@ -67,20 +67,20 @@ exports.categoryPageDetails = async (req, res) => {
         message: "category is not found",
       });
     }
-    if (selectedCategory.courses.length === 0) {
-      console.log("No courses found for this category");
-      return res.status(404).json({
-        success: false,
-        message: "No courses are found for this category",
-      });
-    }
-    const selectedCourses = selectedCategory.courses;
+    // if (selectedCategory.course === 0) {
+    //   console.log("No courses found for this category");
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "No courses are found for this category",
+    //   });
+    // }
+    const selectedCourses = selectedCategory.course;
 
     // get the courses for the other categories
     const categoriesExceptSelected = await Category.find({
       _id: { $ne: categoryId },
     })
-      .populate("courses")
+      .populate("course")
       .exec();
     // let differentCourses = [];
     // for (const category of categoriesExceptSelected) {
@@ -96,7 +96,7 @@ exports.categoryPageDetails = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      selectedCourses: selectedCourses,
+      selectedCategory: selectedCategory,
       categoriesExceptSelected: categoriesExceptSelected,
       // differentCourses: differentCourses,
       // mostSellingCourses: mostSellingCourses,
