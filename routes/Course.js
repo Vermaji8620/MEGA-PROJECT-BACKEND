@@ -49,8 +49,8 @@ router.get("/showAllCategories", showAllCategories); //  tested
 router.get("/getCategoryPageDetails", categoryPageDetails); //  tested
 
 // rating and review
-router.post("/createRating", auth, isStudent, createRating);    
-router.get("/getAverageRating", getAverageRating);
-router.get("/getReviews", getAllRating);
+router.post("/createRating", auth, isStudent, createRating);  //  tested
+router.get("/getAverageRating", getAverageRating);  //  tested
+router.get("/getReviews", getAllRating);    //  
 
 module.exports = router;

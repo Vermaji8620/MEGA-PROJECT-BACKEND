@@ -17,8 +17,8 @@ exports.createRating = async (req, res) => {
       });
     }
     // chck if user is enrolled or not
-    const courseDetails = await Course.findOne({
-      id: courseId,
+    const courseDetails = await Course.find({
+      _id: courseId,
       studentsEnrolled: { $elemMatch: { $eq: userId } },
     });
     if (!courseDetails) {
@@ -47,12 +47,12 @@ exports.createRating = async (req, res) => {
       review: review,
       course: courseId,
     });
-    console.log(RatingAndReview);
+    console.log("RatingAndReview is -> ", RatingAndReview);
     const updatedCourseDetails = await Course.findByIdAndUpdate(
       { _id: courseId },
       {
         $push: {
-          RatingAndReview: RatingReview._id,
+          ratingAndReview: RatingReview._id,
         },
       },
       { new: true }
@@ -64,8 +64,8 @@ exports.createRating = async (req, res) => {
       updatedCourseDetails,
     });
   } catch (error) {
-    console.log(error);
-    return res.json({
+    console.log("error is ---", error);
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
