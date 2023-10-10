@@ -108,3 +108,56 @@ exports.getAllUserDetails = async (req, res) => {
     });
   }
 };
+
+// get the enrolled courses--
+exports.getEnrolledCourses = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userDetails = await User.find({ _id: userId })
+      .populate("courses")
+      .exec();
+    if (!userDetails) {
+      return res.status(401).json({
+        success: false,
+        message: "could not find the user",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Fetched the course details",
+      data: userDetails.courses,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// update the profile picture
+exports.updateDisplayPicture = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const displayPicture = req.files.displayPicture;
+    const image = await uploadImageToCloudinary(
+      displayPicture,
+      process.env.FOLDER_NAME
+    );
+    const updatedProfile = await User.findByIdAndUpdate(
+      { _id: userId },
+      { image: image.secure_url },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "profile updated successfully",
+    });
+  } catch (error) {
+    console.log("could not update the profile picture");
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
