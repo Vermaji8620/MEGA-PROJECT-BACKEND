@@ -56,10 +56,10 @@ exports.createSection = async (req, res) => {
 exports.updateSection = async (req, res) => {
   try {
     // data input
-    const { sectionName, sectionId } = req.body;
+    const { sectionName, sectionId, courseId } = req.body;
 
     //  data validation
-    if (!sectionName || !sectionId) {
+    if (!sectionName || !sectionId || !courseId) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
@@ -69,18 +69,32 @@ exports.updateSection = async (req, res) => {
     const section = await Section.findByIdAndUpdate(
       sectionId,
       {
-        sectionName,
+        sectionName: sectionName,
       },
       { new: true }
     );
 
-    // change needs to be updated in the sectiion as well
+    // change needs to be updated in the course as well
+    // no need of the below codes, bcoz even if any updation in SubSection is done, it wont affect anything in the Section(since it just has _id and nothing else)
+    // let course;
+    // course = await Course.findOneAndUpdate(
+    //   { _id: courseId, "courseContent._id": sectionId },
+    //   {
+    //     $set: {
+    //       courseContent$sectionName: sectionName,
+    //     },
+    //   },
+    //   {
+    //     new: true,
+    //   }
+    // );
 
     // return res
     return res.status(200).json({
       success: true,
-      message: " Section updated successfully",
+      message: "Section updated successfully",
       section,
+      // course,
     });
   } catch (error) {
     console.log(error.message);
@@ -94,19 +108,39 @@ exports.updateSection = async (req, res) => {
 exports.deleteSection = async (req, res) => {
   try {
     // get the section id to delete
-    const { sectionID } = req.body;
+    const { sectionID, courseID } = req.body;
     // validation
-    if (!sectionID) {
+    if (!sectionID || !courseID) {
       return res.status(400).json({
         success: false,
-        message:
-          "section is field is required to delete the particular section ",
+        message: "all field required ",
       });
     }
     // go to the Section and find if any such section having this section id is present ..if yes then delete it
+    let findd = await Section.findById(sectionID);
+    if (!findd)
+      return res.status(401).json({
+        success: false,
+        message: "could find any such section",
+      });
+
+    findd = await Course.findById(courseID);
+    if (!findd)
+      return res.status(401).json({
+        success: false,
+        message: "could find any such course",
+      });
+
     await Section.findByIdAndDelete(sectionID);
 
     //  do we need to delte the entry from the course schema as weell
+    await Course.findByIdAndUpdate(
+      {
+        _id: courseID,
+      },
+      { $pull: { courseContent: sectionID } },
+      { new: true }
+    );
 
     // return response
     return res.status(200).json({

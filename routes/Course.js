@@ -19,7 +19,11 @@ const {
   deleteSection,
 } = require("../controllers/Section");
 
-const { createSubSection } = require("../controllers/SubSection");
+const {
+  createSubSection,
+  deleteSubSection,
+  updateSubSection,
+} = require("../controllers/SubSection");
 
 const {
   createRating,
@@ -40,6 +44,8 @@ router.post("/addSection", auth, isInstructor, createSection); //  tested
 router.put("/updateSection", auth, isInstructor, updateSection); //  tested
 router.delete("/deleteSection", auth, isInstructor, deleteSection); //  tested
 router.post("/addSubSection", auth, isInstructor, createSubSection); //  tested
+router.put("/updateSubSection", auth, isInstructor, updateSubSection); //  tested
+router.delete("/deleteSubSection", auth, isInstructor, deleteSubSection); //  tested
 router.get("/getAllCourses", getAllCourses); //  tested
 router.get("/getCourseDetails", getCourseDetails); //  tested
 
