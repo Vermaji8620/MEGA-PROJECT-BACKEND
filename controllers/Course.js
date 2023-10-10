@@ -48,6 +48,7 @@ exports.createCourse = async (req, res) => {
     let instructorDetails = await User.findById(userId, {
       accountType: "Instructor",
     });
+
     console.log("instructorDetails", instructorDetails);
     // verify if userId and instructorDetails._id are same or different
 

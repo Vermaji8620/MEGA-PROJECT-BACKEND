@@ -36,7 +36,7 @@ exports.createRating = async (req, res) => {
     if (alreadyReviewed) {
       return res.status(403).json({
         success: false,
-        message: "course is already reviewd by the user",
+        message: "course is already reviewed by the user",
       });
     }
 
@@ -118,7 +118,6 @@ exports.getAverageRating = async (req, res) => {
 };
 
 // get All Rating and review
-
 exports.getAllRating = async (req, res) => {
   try {
     const allReviews = await RatingAndReview.find({})
@@ -134,10 +133,11 @@ exports.getAllRating = async (req, res) => {
       .exec();
     return res.status(200).json({
       success: true,
+      ratings: allReviews,
       message: "All reviews fetched successfully",
     });
   } catch (error) {
-    return res.json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });

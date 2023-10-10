@@ -12,6 +12,15 @@ exports.createCategory = async (req, res) => {
         message: "All fields are required",
       });
     }
+
+    // check if that category already exist in the database
+    const chckCategory = await Category.findOne({ name: name });
+    if (chckCategory)
+      return res.status(404).json({
+        success: false,
+        message: "such category already exist",
+      });
+
     // create an entry in database
     const CategoryDetails = await Category.create({
       name: name,
@@ -22,7 +31,7 @@ exports.createCategory = async (req, res) => {
     //  return response
     return res.status(200).json({
       success: true,
-      message: "tag created successfully",
+      message: "category created successfully",
     });
   } catch (error) {
     return res.json({
@@ -69,7 +78,7 @@ exports.categoryPageDetails = async (req, res) => {
     }
     // if (selectedCategory.course === 0) {
     //   console.log("No courses found for this category");
-    //   return res.status(404).json({
+    //   res.status(404).json({
     //     success: false,
     //     message: "No courses are found for this category",
     //   });

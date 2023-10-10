@@ -42,9 +42,9 @@ app.use(
 cloudinaryConnect();
 
 // routes
-app.use("/api/v1/auth", userRoutes);  // tested fully
-app.use("/api/v1/profile", profileRoutes);  // tested fully
-app.use("/api/v1/course", courseRoutes);  
+app.use("/api/v1/auth", userRoutes); // tested fully
+app.use("/api/v1/profile", profileRoutes); // tested fully
+app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 
 // default route
